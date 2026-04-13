@@ -17,8 +17,8 @@ load_dotenv()
 
 # ── Chemins ────────────────────────────────────────────────────────────────────
 BASE_DIR: Path = Path(__file__).parent
-DOCS_DIR: Path = BASE_DIR / "documents"    # Dossier contenant les fichiers à ingérer
-CHROMA_DIR: Path = BASE_DIR / "chroma_db" # Persistance de la base vectorielle
+DOCS_DIR: Path = BASE_DIR / "documents"  # Dossier contenant les fichiers à ingérer
+CHROMA_DIR: Path = BASE_DIR / "chroma_db"  # Persistance de la base vectorielle
 
 DOCS_DIR.mkdir(exist_ok=True)
 CHROMA_DIR.mkdir(exist_ok=True)
@@ -44,11 +44,11 @@ EMBEDDING_MODEL: str = "text-embedding-3-small"
 CHROMA_COLLECTION_NAME: str = "documents_internes"
 CHUNK_SIZE: int = 800
 CHUNK_OVERLAP: int = 100
-RETRIEVAL_TOP_K: int = 4           # Nombre de chunks retournés par le retriever
+RETRIEVAL_TOP_K: int = 4  # Nombre de chunks retournés par le retriever
 RAG_SIMILARITY_THRESHOLD: float = 0.4  # Score minimum pour considérer un doc pertinent
 
 # ── Mémoire conversationnelle ──────────────────────────────────────────────────
-MEMORY_WINDOW_SIZE: int = 10       # Nombre de tours de conversation conservés
+MEMORY_WINDOW_SIZE: int = 10  # Nombre de tours de conversation conservés
 
 # ── Outils externes ────────────────────────────────────────────────────────────
 OPENWEATHER_BASE_URL: str = "https://api.openweathermap.org/data/2.5/weather"
@@ -80,6 +80,7 @@ Règles importantes :
 
 # ── Validation ─────────────────────────────────────────────────────────────────
 
+
 def validate_config() -> None:
     """
     Vérifie que les variables d'environnement obligatoires sont définies.
@@ -98,7 +99,9 @@ def validate_config() -> None:
     if not TAVILY_API_KEY:
         warnings.append("TAVILY_API_KEY absente — la recherche web sera désactivée.")
     if not OPENWEATHER_API_KEY:
-        warnings.append("OPENWEATHER_API_KEY absente — la météo fonctionnera en mode démo.")
+        warnings.append(
+            "OPENWEATHER_API_KEY absente — la météo fonctionnera en mode démo."
+        )
 
     for warning in warnings:
         print(f"{warning}")

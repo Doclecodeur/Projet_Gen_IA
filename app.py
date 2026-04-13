@@ -35,6 +35,7 @@ validate_config()
 
 # ── Initialisation au démarrage ─────────────────────────────────────────────────
 
+
 @cl.on_chat_start
 async def on_chat_start() -> None:
     """Initialise le vectorstore, le pipeline RAG et le routeur au démarrage."""
@@ -100,6 +101,7 @@ async def on_chat_start() -> None:
 
 # ── Gestion des messages ────────────────────────────────────────────────────────
 
+
 @cl.on_message
 async def on_message(message: cl.Message) -> None:
     """Traite chaque message utilisateur, gère l'upload éventuel, puis retourne la réponse."""
@@ -113,7 +115,7 @@ async def on_message(message: cl.Message) -> None:
 
     # ── Commande de suppression de document ──────────────────────────────────
     if message.content.strip().startswith("!supprimer "):
-        filename = message.content.strip()[len("!supprimer "):].strip()
+        filename = message.content.strip()[len("!supprimer ") :].strip()
         vectorstore = cl.user_session.get("vectorstore")
         if not vectorstore:
             await cl.Message(content="❌ Vectorstore non disponible.").send()
@@ -167,7 +169,9 @@ async def on_message(message: cl.Message) -> None:
             rag_pipeline = RAGPipeline(vectorstore)
             router = AssistantRouter(rag_pipeline)
             cl.user_session.set("router", router)
-            cl.user_session.set("vectorstore", vectorstore)  # sync avec le nouveau vectorstore
+            cl.user_session.set(
+                "vectorstore", vectorstore
+            )  # sync avec le nouveau vectorstore
 
             await cl.Message(
                 content=(
@@ -226,6 +230,7 @@ async def on_message(message: cl.Message) -> None:
 
 # ── Actions utilisateur ─────────────────────────────────────────────────────────
 
+
 @cl.action_callback("clear_memory")
 async def on_clear_memory(action: cl.Action) -> None:
     """Réinitialise la mémoire conversationnelle sur demande de l'utilisateur."""
@@ -236,9 +241,10 @@ async def on_clear_memory(action: cl.Action) -> None:
     # Réinitialisation du tracking des sources
     cl.user_session.set("cited_sources", [])
 
-    await cl.Message(content="🗑️ Mémoire effacée. Nouvelle conversation démarrée.").send()
+    await cl.Message(
+        content="🗑️ Mémoire effacée. Nouvelle conversation démarrée."
+    ).send()
     await action.remove()
-
 
 
 @cl.action_callback("list_docs")
@@ -270,7 +276,8 @@ async def on_show_sources(action: cl.Action) -> None:
         await cl.Message(content="Aucune source citée pour l'instant.").send()
     else:
         lines = [
-            f"- `{e['source']}`" + (f" p.{e['page'] + 1}" if isinstance(e.get("page"), int) else "")
+            f"- `{e['source']}`"
+            + (f" p.{e['page'] + 1}" if isinstance(e.get("page"), int) else "")
             for e in cited
         ]
         await cl.Message(
