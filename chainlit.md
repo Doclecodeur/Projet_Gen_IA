@@ -37,4 +37,4 @@ Votre question
 
 Posez vos questions naturellement — je détecte moi-même si la réponse se trouve dans vos documents ou si j'ai besoin d'utiliser un outil.
 
-> *Projet Master Data Science · LangChain · OpenAI · ChromaDB · Chainlit*
+> *Projet Data Science · LangChain · OpenAI · ChromaDB · Chainlit*
