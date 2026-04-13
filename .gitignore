@@ -1,2 +1,42 @@
+# Environnement virtuel
 .venv/
+venv/
+
+# Archives
 *.zip
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Base vectorielle
+chroma_db/
+
+# Données locales
+todo.txt
+documents/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Git
+.git/
+
+# CI/CD
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS
+.DS_Store
+Thumbs.db
