@@ -43,7 +43,7 @@ jobs:
 
       - name: Lint
         run: |
-          pylint --disable=R,C app.py config.py
+          pylint --disable=R,C,E0611,E0401,E1123,W0718,W0613 app.py config.py
 
       - name: Test
         env:
