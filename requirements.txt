@@ -1,0 +1,36 @@
+# ── LLM & Embeddings ───────────────────────────────────────────────────────────
+openai>=1.30.0
+langchain>=0.2.0,<0.4.0
+langchain-openai>=0.1.0
+langchain-community>=0.2.0
+langchain-chroma>=0.1.0
+
+# ── Vectorstore ────────────────────────────────────────────────────────────────
+chromadb>=0.5.0
+
+# ── Chargeurs de documents ─────────────────────────────────────────────────────
+pypdf>=4.0.0
+docx2txt>=0.8
+pandas>=2.2.0
+openpyxl>=3.1.0
+
+# ── Outils ─────────────────────────────────────────────────────────────────────
+tavily-python>=0.3.0       # Recherche web (optionnel mais recommandé)
+requests>=2.31.0            # Appels API météo
+
+# ── Interface ──────────────────────────────────────────────────────────────────
+chainlit>=2.0.0,<3.0.0
+
+# ── Utilitaires ────────────────────────────────────────────────────────────────
+python-dotenv>=1.0.0
+tzdata>=2025.3
+
+# ── Évaluation RAG ─────────────────────────────────────────────────────────────
+ragas>=0.4.0               # Métriques RAG : faithfulness, relevancy, precision, recall
+datasets>=2.14.0           # Format Dataset HuggingFace requis par RAGAS
+
+# ── Tests ──────────────────────────────────────────────────────────────────────
+pytest>=8.0.0
+pytest-asyncio>=0.23.0     # Support des tests async (router, rag_pipeline)
+black>=24.0.0
+pylint>=3.0.0
