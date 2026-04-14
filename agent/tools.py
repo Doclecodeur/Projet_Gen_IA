@@ -9,32 +9,31 @@ from __future__ import annotations
 
 import logging
 import math
-from langchain_core.tools import tool
 from datetime import datetime
-from zoneinfo import ZoneInfo
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
+import requests
+from langchain_core.tools import tool
+
+from config import (
+    OPENWEATHER_API_KEY,
+    OPENWEATHER_BASE_URL,
+    TAVILY_API_KEY,
+    WEB_SEARCH_MAX_RESULTS,
+)
+
+logger = logging.getLogger(__name__)
+
+
+@tool
 def get_current_date() -> str:
+    """Retourne la date actuelle en France (Europe/Paris)."""
     try:
         now = datetime.now(ZoneInfo("Europe/Paris"))
     except ZoneInfoNotFoundError:
         now = datetime.now()
     return now.strftime("Nous sommes le %d %B %Y.")
 
-import requests
-from langchain_core.tools import tool
-
-from config import OPENWEATHER_API_KEY, OPENWEATHER_BASE_URL, TAVILY_API_KEY, WEB_SEARCH_MAX_RESULTS
-
-logger = logging.getLogger(__name__)
-
-
-# ── Outil 1 : Calculatrice ─────────────────────────────────────────────────────
-@tool
-def get_current_date() -> str:
-    """Retourne la date actuelle en France (Europe/Paris)."""
-    now = datetime.now(ZoneInfo("Europe/Paris"))
-    return now.strftime("Nous sommes le %d %B %Y.")
 
 @tool
 def get_current_time() -> str:
@@ -45,13 +44,14 @@ def get_current_time() -> str:
         now = datetime.now()
     return now.strftime("Il est actuellement %H:%M à Paris.")
 
+
 @tool
 def calculator(expression: str) -> str:
     """
     Évalue une expression mathématique textuelle et retourne le résultat.
 
-    Opérations supportées : +, -, *, /, ** (puissance), sqrt(), log(), sin(), cos().
-    Exemple d'entrée : "sqrt(144) + 3 * (10 - 4)"
+    Opérations supportées : +, -, *, /, **, sqrt(), log(), sin(), cos().
+    Exemple : "sqrt(144) + 3 * (10 - 4)"
     """
     safe_namespace: dict[str, object] = {
         "sqrt": math.sqrt,
@@ -66,16 +66,14 @@ def calculator(expression: str) -> str:
         "round": round,
     }
     try:
-        result = eval(expression, {"__builtins__": {}}, safe_namespace)  # noqa: S307
+        result = eval(expression, {"__builtins__": {}}, safe_namespace)
         return f"Résultat : {result}"
     except ZeroDivisionError:
         return "Erreur : division par zéro."
-    except Exception as exc:  # noqa: BLE001
-        logger.debug("Erreur calculatrice pour « %s » : %s", expression, exc)
+    except Exception as exc:
+        logger.debug("Erreur calculatrice pour '%s' : %s", expression, exc)
         return f"Expression invalide : {exc}"
 
-
-# ── Outil 2 : Météo ────────────────────────────────────────────────────────────
 
 @tool
 def get_weather(city: str) -> str:
@@ -107,6 +105,7 @@ def get_weather(city: str) -> str:
         "units": "metric",
         "lang": "fr",
     }
+
     try:
         response = requests.get(OPENWEATHER_BASE_URL, params=params, timeout=5)
         response.raise_for_status()
@@ -117,7 +116,6 @@ def get_weather(city: str) -> str:
         humidity = data["main"]["humidity"]
         description = data["weather"][0]["description"].capitalize()
         wind_speed = data["wind"]["speed"] * 3.6
-
         resolved_city = data.get("name", city)
 
         return (
@@ -127,44 +125,40 @@ def get_weather(city: str) -> str:
         )
     except requests.exceptions.HTTPError as exc:
         if exc.response is not None and exc.response.status_code == 404:
-            return f"Ville introuvable : « {city} »."
+            return f"Ville introuvable : '{city}'."
         return f"Erreur API météo : {exc}"
     except requests.exceptions.RequestException as exc:
         return f"Impossible de contacter le service météo : {exc}"
 
 
-# ── Outil 3 : Recherche web ────────────────────────────────────────────────────
-
 def _build_web_search_tool():
     """
     Instancie l'outil de recherche web Tavily si la clé est disponible,
-    ou un outil de remplacement informant l'utilisateur de la limitation.
+    sinon retourne un outil de remplacement.
     """
     if TAVILY_API_KEY:
         from langchain_community.tools.tavily_search import TavilySearchResults
+
         return TavilySearchResults(
             max_results=WEB_SEARCH_MAX_RESULTS,
             name="web_search",
             description=(
                 "Recherche des informations récentes sur le web. "
-                "Utilise cet outil pour toute question nécessitant des données actuelles "
-                "ou non présentes dans les documents internes."
+                "À utiliser pour les questions qui nécessitent des données actuelles "
+                "ou absentes des documents internes."
             ),
         )
 
-    # Outil de remplacement si Tavily n'est pas configuré
     @tool
-    def web_search_unavailable(query: str) -> str:  # noqa: ARG001
-        """Recherche web — non disponible car TAVILY_API_KEY est absente."""
+    def web_search_unavailable(query: str) -> str:
+        """Recherche web indisponible si TAVILY_API_KEY n'est pas configurée."""
         return (
             "La recherche web n'est pas disponible. "
-            "Configurez TAVILY_API_KEY dans votre fichier .env pour activer cette fonctionnalité."
+            "Configurez TAVILY_API_KEY dans le fichier .env pour activer cette fonctionnalité."
         )
 
     return web_search_unavailable
 
-
-# ── Outil 4 : Todo list locale ─────────────────────────────────────────────────
 
 _TODO_FILE = "todo.txt"
 
@@ -184,20 +178,17 @@ def read_todo_list() -> str:
 def add_todo_item(item: str) -> str:
     """
     Ajoute une tâche à la liste locale (todo.txt).
-
-    Paramètre : item — description de la tâche à ajouter.
     """
     try:
         with open(_TODO_FILE, "a", encoding="utf-8") as f:
             f.write(f"- {item}\n")
-        return f"Tâche ajoutée : « {item} »."
+        return f"Tâche ajoutée : '{item}'."
     except OSError as exc:
         return f"Impossible d'écrire dans le fichier todo.txt : {exc}"
 
 
-# ── Export de tous les outils ──────────────────────────────────────────────────
-
 def get_all_tools() -> list:
+    """Retourne la liste complète des outils disponibles pour l'agent."""
     return [
         calculator,
         get_current_date,
