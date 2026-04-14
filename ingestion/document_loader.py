@@ -35,7 +35,6 @@ def _enrich_metadata(source: Path, extra: dict | None = None) -> dict:
         metadata.update(extra)
     return metadata
 
-
 def _load_pdf(path: Path) -> list[Document]:
     docs = PyPDFLoader(str(path)).load()
     enriched_docs: list[Document] = []
