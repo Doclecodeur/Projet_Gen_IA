@@ -22,7 +22,7 @@ chroma_db/
 
 # Données locales
 todo.txt
-documents/
+#documents/
 
 # IDE
 .vscode/
